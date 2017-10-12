@@ -31,12 +31,18 @@ parser.add_argument("--cpu_info", action="store_true", default=False, help="Disp
                                                                            "exit.")
 parser.add_argument("--cpu_info_detailed", action="store_true", default=False, help="Display extended informations "
                                                                                    "about the CPU used and exit.")
+parser.add_argument("--monitoring_freq", action="store", default=1, help="Monitoring frequency in Hz")
+parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
 
 
 parsed_args = parser.parse_args()
 print parsed_args
 display = parsed_args.display_operations_per_second
 standalone = parsed_args.load_standalone
+
+freq = int(parsed_args.monitoring_freq)
+filename = parsed_args.filename
+
 if(parsed_args.load_nb_threads):
     load = int(parsed_args.load_nb_threads)
 else:
@@ -133,6 +139,7 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
         result["iowait"] = iowait_percent
         result["irq"] = irq_percent
         result["softirq"] = softirq_percent
+        result["name"] = name
         return result
     else:
         return None
@@ -142,11 +149,31 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
 proc_file = open("/proc/stat", "r")
 previous_lines = None
 
+
+sleep_time = 1/float(freq)
+
+fp = None
+if filename:
+    fp = open(filename,'w')
+
+def pretty_print(cpu_stat):
+    pretty = ""
+    data = ["name", "user", "nice"]
+    for element in data:
+        value = cpu_stat.get(element)
+        if value is not None:
+            pretty += element +": " + str(value) + "  "
+    return pretty
+
+
 while True:
     revelant_lines = read_proc(proc_file)
     if (previous_lines and previous_lines != revelant_lines):
         for i in range(0, len(revelant_lines)):
             result = calculator(revelant_lines[i], previous_lines[i])
+            result = pretty_print(result)
             print result
+            if (fp and result is not None):
+                fp.write(str(result) + "\n")
     previous_lines = revelant_lines
-    time.sleep(2)
+    time.sleep(sleep_time)
