@@ -158,17 +158,22 @@ if filename:
 
 def pretty_print(cpu_stat):
     pretty = ""
-    data = ["name", "user", "nice"]
+    data = ["name", "user", "nice", "system", "iowait", "irq","softirq", "idle"]
     for element in data:
         value = cpu_stat.get(element)
         if value is not None:
             pretty += element +": " + str(value) + "  "
     return pretty
 
+def set_time_stamp(log_file):
+    if(log_file):
+        time_stamp = "[ " + str(time.time()) + " ]\n"
+        log_file.write(time_stamp)
 
 while True:
     revelant_lines = read_proc(proc_file)
     if (previous_lines and previous_lines != revelant_lines):
+        set_time_stamp(fp)
         for i in range(0, len(revelant_lines)):
             result = calculator(revelant_lines[i], previous_lines[i])
             result = pretty_print(result)
