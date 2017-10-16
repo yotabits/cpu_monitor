@@ -4,9 +4,10 @@ import time
 import re
 import argparse
 from cpu_info import get_cpu_info
-from multiprocessing import Pool
 from graph_maker import draw_graph
 from loader import launch_cpu_load
+import os
+#launch_cpu_load(True,True,no_of_cpu_to_be_consumed=1)
 
 parser = argparse.ArgumentParser(description="A cpu usage logging software")
 parser.add_argument("--no_display", action="store_false", default=False)
@@ -36,7 +37,6 @@ parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Dr
 
 
 parsed_args = parser.parse_args()
-print parsed_args
 display = parsed_args.display_operations_per_second
 standalone = parsed_args.load_standalone
 
@@ -186,4 +186,6 @@ while True:
             if (fp and result is not None):
                 fp.write(str(result) + "\n")
     previous_lines = revelant_lines
+    #print ("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
     time.sleep(sleep_time)
+    os.system('clear')

@@ -8,6 +8,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import re
 
+
 def get_log_fp(filename):
     return open(filename, "r")
 
@@ -26,7 +27,8 @@ def get_data_from_file(fp):
                 chunk_list.append(actual_chunk_list)
             actual_chunk_list = []
             line = re.sub("[^0-9.]","", line)
-            time_stamp = line
+            time_stamp = float(line)
+            print time_stamp
             actual_chunk["timestamp"] = time_stamp
         else:
             temp_chunk = {}

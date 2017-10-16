@@ -25,7 +25,7 @@ def launch_cpu_load(display, standalone, no_of_cpu_to_be_consumed=1):
     p = Pool(processes=no_of_cpu_to_be_consumed)
     if(standalone):
         while True:
-            perf_list = p.map_async(load_cpu_func, range(no_of_cpu_to_be_consumed)).get(no_of_cpu_to_be_consumed)
+            perf_list = p.map_async(load_cpu_func, range(no_of_cpu_to_be_consumed)).get(no_of_cpu_to_be_consumed + 1)
             op_per_sec = 0
             for nb_op in perf_list:
                 op_per_sec += nb_op

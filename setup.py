@@ -6,6 +6,7 @@ setup(name='cpu_monitor',
       author='yotabits',
       author_email='tkostas75@gmail.com',
       license='MIT',
+      url='https://github.com/yotabits/cpu_monitor',
       packages=['cpu_monitor'],
       scripts=['bin/cpu_watcher'],
       install_requires=[
