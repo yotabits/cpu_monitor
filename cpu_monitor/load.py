@@ -4,13 +4,15 @@ import time
 import re
 import argparse
 from cpu_info import get_cpu_info
+from graphic_output import pretty_print, graphic_print, print_legend
 from graph_maker import draw_graph
 from loader import launch_cpu_load
 import os
 #launch_cpu_load(True,True,no_of_cpu_to_be_consumed=1)
 
 parser = argparse.ArgumentParser(description="A cpu usage logging software")
-parser.add_argument("--no_display", action="store_false", default=False)
+parser.add_argument("--no_display", action="store_true", default=False, help="programm run without displaying and can"
+                                                                              " still log")
 parser.add_argument("--version", action="version", version='%(prog)s 0.01')
 parser.add_argument("--load", action="store", dest="load_nb_threads", help="Define the number of threads to load during the monitoring"
                                                                            "If not used the cpu won't be loaded")
@@ -34,11 +36,18 @@ parser.add_argument("--monitoring_freq", action="store", default=1, help="Monito
 parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
 parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and on for the "
                                                                              "whole cpu from the LOGFILE argument")
+parser.add_argument("--fancy", action="store_true", default=False, help="Display fancy percent color bars during cpu "
+                                                                        "monitoring.")
+
 
 
 parsed_args = parser.parse_args()
 display = parsed_args.display_operations_per_second
 standalone = parsed_args.load_standalone
+
+#display values
+fancy = parsed_args.fancy
+no_display = parsed_args.no_display
 
 freq = int(parsed_args.monitoring_freq)
 filename = parsed_args.filename
@@ -153,14 +162,7 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
 
 
 
-def pretty_print(cpu_stat):
-    pretty = ""
-    data = ["name", "user", "nice", "system", "iowait", "irq","softirq", "idle"]
-    for element in data:
-        value = cpu_stat.get(element)
-        if value is not None:
-            pretty += element +": " + str(value) + "  "
-    return pretty
+
 
 def set_time_stamp(log_file):
     if(log_file):
@@ -174,7 +176,7 @@ sleep_time = 1/float(freq)
 
 fp = None
 if filename:
-    fp = open(filename,'w')
+    fp = open(filename,'w') #not closed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 while True:
     revelant_lines = read_proc(proc_file)
@@ -182,11 +184,16 @@ while True:
         set_time_stamp(fp)
         for i in range(0, len(revelant_lines)):
             result = calculator(revelant_lines[i], previous_lines[i])
-            result = pretty_print(result)
-            print result
+            to_print_or_save = pretty_print(result)
+            if(no_display == False):
+                if (fancy):
+                    graphic_print(result)
+                else:
+                    print result
             if (fp and result is not None):
-                fp.write(str(result) + "\n")
+                fp.write(str(to_print_or_save) + "\n")
     previous_lines = revelant_lines
-    #print ("|||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||||")
     time.sleep(sleep_time)
     os.system('clear')
+    if fancy:
+        print_legend()
