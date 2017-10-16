@@ -12,7 +12,7 @@ setup(name='cpu_monitor',
       install_requires=[
           'py-cpuinfo',
           'plotly',
-          'colorama'
+          'colorama',
           'dash',
           'dash_renderer',
           'dash_core_components',

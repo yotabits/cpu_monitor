@@ -1,4 +1,5 @@
 from colorama import init
+init()
 from colorama import Back, Style, Fore
 def pretty_print(cpu_stat):
     pretty = ""
