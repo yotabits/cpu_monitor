@@ -4,14 +4,12 @@ import time
 import re
 import argparse
 from cpu_info import get_cpu_info
-from loader import launch_cpu_load
 from multiprocessing import Pool
-
-
+from graph_maker import draw_graph
 from loader import launch_cpu_load
 
 parser = argparse.ArgumentParser(description="A cpu usage logging software")
-parser.add_argument("--no_display", action="store_false", default=True)
+parser.add_argument("--no_display", action="store_false", default=False)
 parser.add_argument("--version", action="version", version='%(prog)s 0.01')
 parser.add_argument("--load", action="store", dest="load_nb_threads", help="Define the number of threads to load during the monitoring"
                                                                            "If not used the cpu won't be loaded")
@@ -33,6 +31,8 @@ parser.add_argument("--cpu_info_detailed", action="store_true", default=False, h
                                                                                    "about the CPU used and exit.")
 parser.add_argument("--monitoring_freq", action="store", default=1, help="Monitoring frequency in Hz")
 parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
+parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and on for the "
+                                                                             "whole cpu from the LOGFILE argument")
 
 
 parsed_args = parser.parse_args()
@@ -42,6 +42,11 @@ standalone = parsed_args.load_standalone
 
 freq = int(parsed_args.monitoring_freq)
 filename = parsed_args.filename
+
+if(parsed_args.logfile):
+    draw_graph(parsed_args.logfile)
+    exit(0)
+
 
 if(parsed_args.load_nb_threads):
     load = int(parsed_args.load_nb_threads)
@@ -61,7 +66,7 @@ if (display):
 
 if (load is not None or standalone):
     if (load is not None):
-        launch_cpu_load(display, standalone,no_of_cpu_to_be_consumed=load)
+        launch_cpu_load(display, standalone, no_of_cpu_to_be_consumed=load)
     else:
         launch_cpu_load(display, standalone)
     if standalone:
