@@ -151,15 +151,7 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
 
 
 
-proc_file = open("/proc/stat", "r")
-previous_lines = None
 
-
-sleep_time = 1/float(freq)
-
-fp = None
-if filename:
-    fp = open(filename,'w')
 
 def pretty_print(cpu_stat):
     pretty = ""
@@ -174,6 +166,15 @@ def set_time_stamp(log_file):
     if(log_file):
         time_stamp = "[ " + str(time.time()) + " ]\n"
         log_file.write(time_stamp)
+proc_file = open("/proc/stat", "r")
+previous_lines = None
+
+
+sleep_time = 1/float(freq)
+
+fp = None
+if filename:
+    fp = open(filename,'w')
 
 while True:
     revelant_lines = read_proc(proc_file)
