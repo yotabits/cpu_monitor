@@ -16,11 +16,6 @@ sudo pip install cpu_monitor/
 ~~~~
 
 ## Usage
-NB: The following options do not work
-~~~~
---load
---load_standalone
-~~~~
 ~~~~
 cpu_watcher --help
   -h, --help            show this help message and exit
@@ -50,4 +45,9 @@ cpu_watcher --help
                         monitoring.
   --log_size LOG_SIZE   Define the maximum number of lines to keep in the log
                         file
+~~~~
+NB: The following options do not work
+~~~~
+--load
+--load_standalone
 ~~~~
