@@ -160,11 +160,11 @@ def log(log_file_pointer, max_log_file_size, update_freq, fancy, proc_file, no_d
         os.system('clear')
         if fancy:
             print_legend()
-        log_file_pointer.flush()
-        if actual_log_size >= max_log_file_size and max_log_file_size > -1:
-            log_file_pointer.seek(0)
+            if log_file_pointer is not None:
+                log_file_pointer.flush()
+                if actual_log_size >= max_log_file_size and max_log_file_size > -1:
+                    log_file_pointer.seek(0)
             actual_log_size = 0
-
 
 
 def main():
