@@ -48,4 +48,6 @@ cpu_watcher --help
                         the LOGFILE argument
   --fancy               Display fancy percent color bars during cpu
                         monitoring.
+  --log_size LOG_SIZE   Define the maximum number of lines to keep in the log
+                        file
 ~~~~
