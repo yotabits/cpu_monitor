@@ -10,77 +10,44 @@ from loader import launch_cpu_load
 import os
 #launch_cpu_load(True,True,no_of_cpu_to_be_consumed=1)
 
-parser = argparse.ArgumentParser(description="A cpu usage logging software")
-parser.add_argument("--no_display", action="store_true", default=False, help="programm run without displaying and can"
+def pars_args():
+    parser = argparse.ArgumentParser(description="A cpu usage logging software")
+    parser.add_argument("--no_display", action="store_true", default=False, help="programm run without displaying and can"
                                                                               " still log")
-parser.add_argument("--version", action="version", version='%(prog)s 0.01')
-parser.add_argument("--load", action="store", dest="load_nb_threads", help="Define the number of threads to load during the monitoring"
+    parser.add_argument("--version", action="version", version='%(prog)s 0.01')
+    parser.add_argument("--load", action="store", dest="load_nb_threads", help="Define the number of threads to load during the monitoring"
                                                                            "If not used the cpu won't be loaded")
-parser.add_argument("--load_standalone", action="store_true", default=False, help="Does not monitor the CPU usage but "
+    parser.add_argument("--load_standalone", action="store_true", default=False, help="Does not monitor the CPU usage but "
                                                                                  "only launch load the "
                                                                                  "N threads provided by the --load "
                                                                                  "option, if --load option is not "
                                                                                  "provided only one thread will have "
                                                                                  "workload.")
-parser.add_argument("--display_operations_per_second", action="store_true", default=False, help="display number of "
+    parser.add_argument("--display_operations_per_second", action="store_true", default=False, help="display number of "
                                                                                                  "operation per "
                                                                                                  "second if "
                                                                                                  "--loadstandalone "
                                                                                                  "option is used.")
 
-parser.add_argument("--cpu_info", action="store_true", default=False, help="Display informations about the CPU used and "
+    parser.add_argument("--cpu_info", action="store_true", default=False, help="Display informations about the CPU used and "
                                                                            "exit.")
-parser.add_argument("--cpu_info_detailed", action="store_true", default=False, help="Display extended informations "
+    parser.add_argument("--cpu_info_detailed", action="store_true", default=False, help="Display extended informations "
                                                                                    "about the CPU used and exit.")
-parser.add_argument("--monitoring_freq", action="store", default=1, help="Monitoring frequency in Hz")
-parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
-parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and on for the "
+    parser.add_argument("--monitoring_freq", action="store", default=1, help="Monitoring frequency in Hz")
+    parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
+    parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and on for the "
                                                                              "whole cpu from the LOGFILE argument")
-parser.add_argument("--fancy", action="store_true", default=False, help="Display fancy percent color bars during cpu "
+    parser.add_argument("--fancy", action="store_true", default=False, help="Display fancy percent color bars during cpu "
                                                                         "monitoring.")
 
+    parser.add_argument("--log_size", action="store", default=-1, help="Define the maximum number of lines to keep in the "
+                                                                  "log file")
+
+    return parser.parse_args()
 
 
-parsed_args = parser.parse_args()
-display = parsed_args.display_operations_per_second
-standalone = parsed_args.load_standalone
-
-#display values
-fancy = parsed_args.fancy
-no_display = parsed_args.no_display
-
-freq = int(parsed_args.monitoring_freq)
-filename = parsed_args.filename
-
-if(parsed_args.logfile):
-    draw_graph(parsed_args.logfile)
-    exit(0)
 
 
-if(parsed_args.load_nb_threads):
-    load = int(parsed_args.load_nb_threads)
-else:
-    load = None
-
-if (parsed_args.cpu_info):
-    get_cpu_info(to_display=True)
-    exit()
-if (parsed_args.cpu_info_detailed):
-    get_cpu_info(to_display=True, detailed=True)
-    exit()
-
-if (display):
-    if (not standalone):
-        display = False
-
-if (load is not None or standalone):
-    if (load is not None):
-        launch_cpu_load(display, standalone, no_of_cpu_to_be_consumed=load)
-    else:
-        launch_cpu_load(display, standalone)
-    if standalone:
-        while True:
-            time.sleep(1)
 
 
 def read_proc(proc_file):
@@ -159,41 +126,89 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
         return None
 
 
-
-
-
-
-
 def set_time_stamp(log_file):
     if(log_file):
         time_stamp = "[ " + str(time.time()) + " ]\n"
         log_file.write(time_stamp)
-proc_file = open("/proc/stat", "r")
-previous_lines = None
+
+def write_to_log(actual_log_size, max_logsize, value_to_write, log_fp):
+    if(value_to_write is not None and log_fp):
+        log_fp.write(str(value_to_write) + "\n")
+        actual_log_size += 1
+    return actual_log_size
+
+def log(log_file_pointer, max_log_file_size, update_freq, fancy, proc_file, no_display):
+    sleep_time = 1 / float(update_freq)
+    previous_lines = None
+    actual_log_size = 0
+    while True:
+        revelant_lines = read_proc(proc_file)
+        if (previous_lines and previous_lines != revelant_lines):
+            set_time_stamp(log_file_pointer)
+            for i in range(0, len(revelant_lines)):
+                result = calculator(revelant_lines[i], previous_lines[i])
+                to_print_or_save = pretty_print(result)
+                if(no_display == False):
+                    if (fancy):
+                        graphic_print(result)
+                    else:
+                        print to_print_or_save
+                actual_log_size = write_to_log(actual_log_size,max_log_file_size,
+                                                                 to_print_or_save, log_file_pointer)
+        previous_lines = revelant_lines
+        time.sleep(sleep_time)
+        os.system('clear')
+        if fancy:
+            print_legend()
+        log_file_pointer.flush()
+        if actual_log_size >= max_log_file_size and max_log_file_size > -1:
+            log_file_pointer.seek(0)
+            actual_log_size = 0
 
 
-sleep_time = 1/float(freq)
 
-fp = None
-if filename:
-    fp = open(filename,'w') #not closed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+def main():
+    parsed_args = pars_args()
+    display = parsed_args.display_operations_per_second
+    standalone = parsed_args.load_standalone
+    max_log_size = int(parsed_args.log_size)
+    #display values
+    fancy = parsed_args.fancy
+    no_display = parsed_args.no_display
 
-while True:
-    revelant_lines = read_proc(proc_file)
-    if (previous_lines and previous_lines != revelant_lines):
-        set_time_stamp(fp)
-        for i in range(0, len(revelant_lines)):
-            result = calculator(revelant_lines[i], previous_lines[i])
-            to_print_or_save = pretty_print(result)
-            if(no_display == False):
-                if (fancy):
-                    graphic_print(result)
-                else:
-                    print result
-            if (fp and result is not None):
-                fp.write(str(to_print_or_save) + "\n")
-    previous_lines = revelant_lines
-    time.sleep(sleep_time)
-    os.system('clear')
-    if fancy:
-        print_legend()
+    freq = int(parsed_args.monitoring_freq)
+    filename = parsed_args.filename
+    proc_file = open("/proc/stat", "r")
+    fp = None
+    if filename:
+        fp = open(filename, 'w')  # not closed !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if(parsed_args.logfile):
+        draw_graph(parsed_args.logfile)
+        exit(0)
+    if(parsed_args.load_nb_threads):
+        load = int(parsed_args.load_nb_threads)
+    else:
+        load = None
+    if (parsed_args.cpu_info):
+        get_cpu_info(to_display=True)
+        exit()
+    if (parsed_args.cpu_info_detailed):
+        get_cpu_info(to_display=True, detailed=True)
+        exit()
+    if (display):
+        if (not standalone):
+            display = False
+    if (load is not None or standalone):
+        if (load is not None):
+            launch_cpu_load(display, standalone, no_of_cpu_to_be_consumed=load)
+        else:
+            launch_cpu_load(display, standalone)
+        if standalone:
+            while True:
+                time.sleep(1)
+    log(fp, max_log_size, freq, fancy, proc_file, no_display)
+
+if __name__ == '__main__':
+    main()
+
+main()
