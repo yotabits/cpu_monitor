@@ -126,10 +126,12 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
         return None
 
 
-def set_time_stamp(log_file):
+def set_time_stamp(actual_log_size, log_file):
     if(log_file):
         time_stamp = "[ " + str(time.time()) + " ]\n"
         log_file.write(time_stamp)
+        actual_log_size += 1
+    return actual_log_size
 
 def write_to_log(actual_log_size, max_logsize, value_to_write, log_fp):
     if(value_to_write is not None and log_fp):
@@ -144,7 +146,7 @@ def log(log_file_pointer, max_log_file_size, update_freq, fancy, proc_file, no_d
     while True:
         revelant_lines = read_proc(proc_file)
         if (previous_lines and previous_lines != revelant_lines):
-            set_time_stamp(log_file_pointer)
+            actual_log_size = set_time_stamp(actual_log_size, log_file_pointer)
             for i in range(0, len(revelant_lines)):
                 result = calculator(revelant_lines[i], previous_lines[i])
                 to_print_or_save = pretty_print(result)
