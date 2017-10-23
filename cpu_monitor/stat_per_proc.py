@@ -38,6 +38,36 @@ def generate_proc_stat_fp(previous_proc_list, actual_proc_list, proc_stat_fp_dic
 def get_cpu_tick_per_second():
     return os.sysconf('SC_CLK_TCK')
 
+#Should use a class
+def make_state_explicit(proc_stat_dict):
+    if (proc_stat_dict is not None):
+        dict_state = {
+            'R': 'Running',
+            'S': 'Sleeping in an interruptible wait',
+            'D': 'Waiting in uninterruptible disk sleep',
+            'Z': 'Zombie',
+            'T': 'Stopped (on a signal) or (before Linux 2.6.33) trace stopped',
+            't': 'Tracing stop',
+            'W': 'Paging',
+            'X': 'Dead',
+            'x': 'Dead',
+            'K': 'WakeKill',
+            'W': 'Waking',
+            'P': 'Parked'
+        }
+
+        try:
+            state_value = proc_stat_dict['state']
+        except KeyError: #this should NEVER happen
+            proc_stat_dict['state'] = "Not valid"
+            return None
+
+        try:
+            proc_stat_dict['state'] = dict_state[state_value]
+        except:
+            proc_stat_dict['state'] = "Not recognized state"
+
+
 
 def get_provided_values_list():
     # http://man7.org/linux/man-pages/man5/proc.5.html
@@ -51,39 +81,42 @@ def get_provided_values_list():
 
 
 def print_proc_stat_dict(proc_stat_dict):
-    for element in get_provided_values_list():
-        value = proc_stat_dict.get(element)
-        if value:
-            print element + ":" + value
+    if proc_stat_dict is not None:
+        for element in get_provided_values_list():
+            value = proc_stat_dict.get(element)
+            if value:
+                print element + ":" + value
 
 
 def parse_process_stat(stat_file_fp):
     if (stat_file_fp):
         data_dict= {}
         data_names = get_provided_values_list()
-        data = stat_file_fp.read()
-        stat_file_fp.seek(0)
+        try:
+            data = stat_file_fp.read()
+            stat_file_fp.seek(0)
+        except IOError:
+            print("Does not exist")
+            return None
+
         print data
         name = re.findall(" \(.*\) ", data)
+
         try:#ask forgiveness not permission
             name = name[0]
         except IndexError:
             name = "no_name"
             print "no name_found ??"
-        ##name = name.group(1)
 
 
-        # PLZ IMPROVE ME
+        # PLZ IMPROVE ME THIS IS HORRIBLE
         data_list = re.split('\(.*\)',data)
         data_list = re.split(' *',data_list[0])  + re.split(' *',data_list[1])
         data_list.insert(1, name)
+        data_list = [x for x in data_list if x != '']
 
         data_names_counter = 0
         for data in data_list:
-
-            print len(data_names)
-            print data_names_counter
-
             data_name = data_names[data_names_counter]
             data_dict[data_name] = data
             data_names_counter += 1
@@ -101,7 +134,8 @@ def main():
 
         for key,file_pointer in proc_fp_dict.iteritems():
             data_dict = parse_process_stat(file_pointer)
+            make_state_explicit(data_dict)
             print_proc_stat_dict(data_dict)
-        time.sleep(1)
+        time.sleep(0.04)
 
 main()
