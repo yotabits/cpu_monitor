@@ -209,8 +209,3 @@ def main():
             while True:
                 time.sleep(1)
     log(fp, max_log_size, freq, fancy, proc_file, no_display)
-
-if __name__ == '__main__':
-    main()
-
-main()
