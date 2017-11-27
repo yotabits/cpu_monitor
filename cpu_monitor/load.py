@@ -8,7 +8,6 @@ from graphic_output import pretty_print, graphic_print, print_legend
 from graph_maker import draw_graph
 from loader import launch_cpu_load
 import os
-#launch_cpu_load(True,True,no_of_cpu_to_be_consumed=1)
 
 def pars_args():
     parser = argparse.ArgumentParser(description="A cpu usage logging software")
@@ -35,7 +34,7 @@ def pars_args():
                                                                                    "about the CPU used and exit.")
     parser.add_argument("--monitoring_freq", action="store", default=1, help="Monitoring frequency in Hz")
     parser.add_argument("--log_to_file", action="store", dest="filename", help="Log gathered results to a file")
-    parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and on for the "
+    parser.add_argument("--graph_from_log", action="store", dest="logfile", help="Draw  graph for each core and one for the "
                                                                              "whole cpu from the LOGFILE argument")
     parser.add_argument("--fancy", action="store_true", default=False, help="Display fancy percent color bars during cpu "
                                                                         "monitoring.")
