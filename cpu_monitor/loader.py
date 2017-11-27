@@ -5,7 +5,6 @@ import signal
 from multiprocessing import Pool
 
 def load_cpu_func(x):
-    print "hey"
     nb_op = 0
     start = time.time()
     spent = 0
@@ -33,5 +32,3 @@ def launch_cpu_load(display, standalone, no_of_cpu_to_be_consumed=1):
                 print ("%i operation per second") % (op_per_sec)
     else:
         p.map_async(load_cpu_until_death, range(no_of_cpu_to_be_consumed))
-
-
