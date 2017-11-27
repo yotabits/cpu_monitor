@@ -8,7 +8,7 @@ setup(name='cpu_monitor',
       license='MIT',
       url='https://github.com/yotabits/cpu_monitor',
       packages=['cpu_monitor'],
-      scripts=['bin/cpu_watcher'],
+      scripts=['bin/cpu_monitor'],
       install_requires=[
           'py-cpuinfo',
           'plotly',
