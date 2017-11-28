@@ -16,7 +16,7 @@ sudo pip install cpu_monitor
 
 ## Usage
 ~~~~
-cpu_watcher --help
+cpu_monitor --help
   -h, --help            show this help message and exit
   --no_display          programm run without displaying and can still log
   --version             show program's version number and exit
