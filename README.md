@@ -2,22 +2,21 @@
 Another Cpu monitoring tool
 
 ## Install
+Tested on Ubunutu 14.04LTS and Ubunutu 16.04LTS
 ### With virtualenv (recommened)
 ~~~~
-git clone https://github.com/yotabits/cpu_monitor.git
 virtualenv my_env
 source my_env/bin/activate
-pip install cpu_monitor/
+pip install cpu_monitor
 ~~~~
 ### Without virtualenv
 ~~~~
-git clone https://github.com/yotabits/cpu_monitor.git
-sudo pip install cpu_monitor/
+sudo pip install cpu_monitor
 ~~~~
 
 ## Usage
 ~~~~
-cpu_watcher --help
+cpu_monitor --help
   -h, --help            show this help message and exit
   --no_display          programm run without displaying and can still log
   --version             show program's version number and exit
