@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(name='cpu_monitor',
       packages=['cpu_monitor'],
-      version='0.1',
+      version='0.2',
       description='Cpu monitoring and burning tool',
       author='yotabits',
       author_email='tkostas75@gmail.com',

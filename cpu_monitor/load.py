@@ -126,6 +126,12 @@ def calculator(actual_line_arg_str, previous_line_arg_str):
 
 
 def set_time_stamp(actual_log_size, log_file):
+    """
+    Write the time stamp for each sample of cpu performance to the file
+    :param actual_log_size: Number of
+    :param log_file: log_file_pointer
+    :return:
+    """
     if(log_file):
         time_stamp = "[ " + str(time.time()) + " ]\n"
         log_file.write(time_stamp)
@@ -133,6 +139,14 @@ def set_time_stamp(actual_log_size, log_file):
     return actual_log_size
 
 def write_to_log(actual_log_size, max_logsize, value_to_write, log_fp):
+    """
+    Write down to log the
+    :param actual_log_size: Number of performances samples taken (1 sample = values for one cpu)
+    :param max_logsize: Maximum number of performances samples allowed
+    :param value_to_write: string containing statistics for one cpu
+    :param log_fp: File pointer to the log file
+    :return:
+    """
     if(value_to_write is not None and log_fp):
         log_fp.write(str(value_to_write) + "\n")
         actual_log_size += 1
